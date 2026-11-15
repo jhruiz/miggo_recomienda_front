@@ -1,0 +1,39 @@
+
+> materio-vuetify-vuejs-admin-template-free@2.3.0 test
+> vitest --run
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/laragon/www/miggo-recomienda/frontend[39m
+
+ [32m✓[39m src/utils/portfolio.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[90m 7[2mms[22m[39m
+ [32m✓[39m src/utils/__tests__/notifications.exploration.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 30[2mms[22m[39m
+ [32m✓[39m src/plugins/router/__tests__/routes.exploration.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 9[2mms[22m[39m
+ [32m✓[39m src/stores/__tests__/auth.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 17[2mms[22m[39m
+ [32m✓[39m src/layouts/components/__tests__/NavItems.exploration.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 40[2mms[22m[39m
+ [32m✓[39m src/pages/notifications/__tests__/index.exploration.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 198[2mms[22m[39m
+ [32m✓[39m src/pages/quote-requests/__tests__/index.exploration.spec.ts [2m([22m[2m1 test[22m[2m)[22m[33m 358[2mms[22m[39m
+   [33m[2m✓[22m[39m botón Postular en el listado (exploración)[2m > [22mno aparece en la solicitud propia y sí en la ajena [33m357[2mms[22m[39m
+ [32m✓[39m src/pages/quotes/__tests__/new.exploration.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 714[2mms[22m[39m
+   [33m[2m✓[22m[39m quotes/new.vue (exploración)[2m > [22mC3: la fila de ítems usa align-start y no align-center [33m334[2mms[22m[39m
+ [32m✓[39m src/layouts/components/__tests__/NavItems.preservation.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 4192[2mms[22m[39m
+   [33m[2m✓[22m[39m NavItems.vue - preservación[2m > [22mpropiedad: entradas base siempre presentes; sección Prestador ⇔ hasProviderRole [33m4068[2mms[22m[39m
+ [32m✓[39m src/pages/quote-requests/__tests__/index.preservation.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 10844[2mms[22m[39m
+   [33m[2m✓[22m[39m quote-requests/index.vue - preservación (solicitudes ajenas)[2m > [22mejemplo: muestra "Postular" en una solicitud abierta ajena con rol Prestador [33m369[2mms[22m[39m
+   [33m[2m✓[22m[39m quote-requests/index.vue - preservación (solicitudes ajenas)[2m > [22mpropiedad: botón visible ⇔ estado "abierta" ∧ hasProviderRole (client_user_id ≠ auth.user.id) [33m10378[2mms[22m[39m
+ [32m✓[39m src/pages/notifications/__tests__/index.preservation.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 14509[2mms[22m[39m
+   [33m[2m✓[22m[39m notifications/index.vue - preservación[2m > [22mpropiedad: el listado conserva el orden descendente y distingue las no leídas [33m4552[2mms[22m[39m
+   [33m[2m✓[22m[39m notifications/index.vue - preservación[2m > [22mpropiedad: clic en no leída la marca y decrementa el contador; clic en leída no llama a markAsRead [33m5582[2mms[22m[39m
+   [33m[2m✓[22m[39m notifications/index.vue - preservación[2m > [22mpropiedad: "Marcar todas como leídas" deja el contador en 0 y todas leídas [33m4109[2mms[22m[39m
+ [32m✓[39m src/pages/quotes/__tests__/new.preservation.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 36719[2mms[22m[39m
+   [33m[2m✓[22m[39m quotes/new.vue - preservación[2m > [22mempieza con exactamente una fila y total 0 [33m341[2mms[22m[39m
+   [33m[2m✓[22m[39m quotes/new.vue - preservación[2m > [22mpropiedad: runningTotal es la suma de subtotales de las filas [33m10194[2mms[22m[39m
+   [33m[2m✓[22m[39m quotes/new.vue - preservación[2m > [22mpropiedad: nunca más de 50 ítems al agregar [33m21398[2mms[22m[39m
+   [33m[2m✓[22m[39m quotes/new.vue - preservación[2m > [22mpropiedad: nunca menos de una fila al eliminar; eliminar quita la fila indicada [33m3312[2mms[22m[39m
+   [33m[2m✓[22m[39m quotes/new.vue - preservación[2m > [22mpropiedad: máximo 5 adjuntos válidos; más de 5 se rechazan y se limpian [33m551[2mms[22m[39m
+   [33m[2m✓[22m[39m quotes/new.vue - preservación[2m > [22mel resumen muestra el conteo de ítems y se detiene en 50 / 50 [33m700[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m12 passed[39m[22m[90m (12)[39m
+[2m      Tests [22m [1m[32m42 passed[39m[22m[90m (42)[39m
+[2m   Start at [22m 01:56:02
+[2m   Duration [22m 42.96s[2m (transform 5.73s, setup 0ms, collect 28.69s, tests 67.64s, environment 18.70s, prepare 2.72s)[22m
+

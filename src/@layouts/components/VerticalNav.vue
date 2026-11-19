@@ -2,7 +2,7 @@
 import type { Component } from 'vue'
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 import { useDisplay } from 'vuetify'
-import logo from '@images/logo.svg?raw'
+import logo from '@images/logo-miggo-blanco.png'
 
 interface Props {
   tag?: string | Component
@@ -60,14 +60,13 @@ const handleNavScroll = (evt: Event) => {
           to="/"
           class="app-logo app-title-wrapper"
         >
-          <div
-            class="d-flex"
-            v-html="logo"
-          />
-
-          <h1 class="font-weight-medium leading-normal text-xl text-uppercase">
-            Materio
-          </h1>
+          <div class="app-logo-box">
+            <img
+              :src="logo"
+              alt="Miggo"
+              class="app-logo-img"
+            >
+          </div>
         </RouterLink>
       </slot>
     </div>
@@ -96,6 +95,19 @@ const handleNavScroll = (evt: Event) => {
   display: flex;
   align-items: center;
   column-gap: 0.75rem;
+
+  .app-logo-box {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background-color: #4e73df;
+    border-radius: 0.5rem;
+  }
+
+  .app-logo-img {
+    block-size: 1.75rem;
+    inline-size: auto;
+  }
 
   .app-logo-title {
     font-size: 1.25rem;

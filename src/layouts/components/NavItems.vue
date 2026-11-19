@@ -2,7 +2,7 @@
 /**
  * Menú de navegación lateral de la plataforma (Requisitos 14.1, 14.2).
  *
- * Reemplaza los enlaces de ejemplo de la plantilla Materio por las secciones
+ * Reemplaza los enlaces de ejemplo de la plantilla base por las secciones
  * propias del dominio. La visibilidad depende solo de los roles que el Usuario
  * posee (store `activeRole`, sin "modo" activo): "Cotizaciones recibidas" con
  * rol Cliente, la Sección Prestador con rol Prestador y "Ofrecer mis servicios"

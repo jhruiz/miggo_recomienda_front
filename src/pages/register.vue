@@ -3,7 +3,7 @@ import { useTheme } from 'vuetify'
 import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
 import { useAuthStore } from '@/stores/auth'
 
-import logo from '@images/logo.svg?raw'
+import logo from '@images/logo-miggo-blanco.png'
 import authV1MaskDark from '@images/pages/auth-v1-mask-dark.png'
 import authV1MaskLight from '@images/pages/auth-v1-mask-light.png'
 import authV1Tree2 from '@images/pages/auth-v1-tree-2.png'
@@ -71,14 +71,16 @@ async function handleRegister() {
           to="/"
           class="d-flex align-center gap-3"
         >
-          <!-- eslint-disable vue/no-v-html -->
           <div
-            class="d-flex"
-            v-html="logo"
-          />
-          <h2 class="font-weight-medium text-2xl text-uppercase">
-            Materio
-          </h2>
+            class="d-flex align-center rounded-lg px-4 py-2"
+            style="background-color: #4e73df;"
+          >
+            <img
+              :src="logo"
+              alt="Miggo"
+              style="block-size: 2.5rem; inline-size: auto;"
+            >
+          </div>
         </RouterLink>
       </VCardItem>
 

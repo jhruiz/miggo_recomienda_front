@@ -1,6 +1,6 @@
 ﻿<script lang="ts" setup>
 import NavItems from '@/layouts/components/NavItems.vue'
-import logo from '@images/logo.svg?raw'
+import logo from '@images/logo-miggo-blanco.png'
 import VerticalNavLayout from '@layouts/components/VerticalNavLayout.vue'
 
 // Components
@@ -59,16 +59,13 @@ onMounted(() => {
         to="/"
         class="app-logo app-title-wrapper"
       >
-        <!-- eslint-disable vue/no-v-html -->
-        <div
-          class="d-flex"
-          v-html="logo"
-        />
-        <!-- eslint-enable -->
-
-        <h1 class="font-weight-medium leading-normal text-xl text-uppercase">
-          Miggo
-        </h1>
+        <div class="app-logo-box">
+          <img
+            :src="logo"
+            alt="Miggo"
+            class="app-logo-img"
+          >
+        </div>
       </RouterLink>
 
       <IconBtn
@@ -107,6 +104,19 @@ onMounted(() => {
   display: flex;
   align-items: center;
   column-gap: 0.75rem;
+
+  .app-logo-box {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background-color: #4e73df;
+    border-radius: 0.5rem;
+  }
+
+  .app-logo-img {
+    block-size: 1.75rem;
+    inline-size: auto;
+  }
 
   .app-logo-title {
     font-size: 1.25rem;

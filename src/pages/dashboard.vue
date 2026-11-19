@@ -2,7 +2,7 @@
 /**
  * Pantalla "Mi panel" de la plataforma (Requisito 14.3).
  *
- * Reemplaza el dashboard de analíticas de ejemplo de Materio por un home del
+ * Reemplaza el dashboard de analíticas de ejemplo de la plantilla base por un home del
  * dominio: accesos directos a las secciones principales y un pequeño resumen de
  * actividad (notificaciones no leídas, trabajos en progreso). Reutiliza los
  * stores/servicios existentes; no añade endpoints nuevos.

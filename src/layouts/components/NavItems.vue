@@ -45,7 +45,14 @@ onMounted(() => {
   <!-- 👉 Principal -->
   <VerticalNavLink
     :item="{
-      title: 'Inicio',
+      title: 'Muro',
+      icon: 'ri-gallery-line',
+      to: '/wall',
+    }"
+  />
+  <VerticalNavLink
+    :item="{
+      title: 'Mi panel',
       icon: 'ri-home-5-line',
       to: '/dashboard',
     }"
@@ -83,6 +90,20 @@ onMounted(() => {
       title: 'Notificaciones',
       icon: 'ri-notification-3-line',
       to: '/notifications',
+    }"
+  />
+  <VerticalNavLink
+    :item="{
+      title: 'Guardados',
+      icon: 'ri-bookmark-line',
+      to: '/wall/saved',
+    }"
+  />
+  <VerticalNavLink
+    :item="{
+      title: 'Privacidad del Muro',
+      icon: 'ri-shield-user-line',
+      to: '/wall/privacy',
     }"
   />
 

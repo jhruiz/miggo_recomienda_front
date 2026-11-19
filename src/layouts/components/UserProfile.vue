@@ -9,6 +9,8 @@
  */
 import { useActiveRoleStore } from '@/stores/activeRole'
 import { useAuthStore } from '@/stores/auth'
+import { useSavedBoardStore } from '@/stores/savedBoard'
+import { useWallBoardStore } from '@/stores/wallBoard'
 import { useNotifier } from '@/composables/useNotifier'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ProfilePhotoDialog from '@/layouts/components/ProfilePhotoDialog.vue'
@@ -29,6 +31,8 @@ const photoDialogOpen = ref(false)
 async function onLogout() {
   await authStore.logout()
   activeRoleStore.reset()
+  useWallBoardStore().reset()
+  useSavedBoardStore().reset()
   router.push('/login')
 }
 

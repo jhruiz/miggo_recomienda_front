@@ -148,6 +148,9 @@ export interface CreateQuotePayload {
  */
 export interface RequestDirectQuotePayload {
   provider_user_id: number
+
+  /** Categoría del servicio solicitado; obligatoria (Requisito 18.8). */
+  service_category_id: number
   message?: string | null
 }
 
@@ -246,6 +249,7 @@ export const quotesService = {
     return http
       .post<ApiEnvelope<{ quote: Quote }>>('/quotes/direct', {
         provider_user_id: payload.provider_user_id,
+        service_category_id: payload.service_category_id,
         ...(payload.message != null && payload.message !== ''
           ? { message: payload.message }
           : {}),

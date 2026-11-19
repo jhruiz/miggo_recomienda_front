@@ -55,6 +55,7 @@ export { portfoliosService } from './portfolios'
 export type {
   OwnerPortfolio,
   OwnerPortfolioItem,
+  PortfolioCategory,
   PublicPortfolio,
   PublicPortfolioItem,
   PortfolioLimits,
@@ -100,7 +101,9 @@ export { jobsService } from './jobs'
 export type {
   JobStatus,
   Job,
+  JobPhoto,
   JobReasonPayload,
+  PendingRatingSummary,
 } from './jobs'
 
 export { ratingsService } from './ratings'
@@ -129,6 +132,43 @@ export type {
 // Catálogo de categorías de servicio (tarea 18.2, Requisitos 4.9, 13.7).
 export { serviceCategoriesService } from './serviceCategories'
 export type { ServiceCategory } from './serviceCategories'
+
+// Muro de portafolios (spec muro-de-portafolios, tarea 11.1).
+export { wallService } from './wall'
+export type {
+  InteractionState,
+  PrivacyStatus,
+  FeedEventType,
+  WallFeedMeta,
+  WallCategoryFilter,
+  WallCityFilter,
+  WallFilters,
+  PrivacySummary,
+  FeedEventHistoryItem,
+  FeedEventHistoryPage,
+  // Muro de Trabajos y Portafolios (spec muro-trabajos-portafolios, tarea 10.1).
+  SubjectType,
+  WallTab,
+  WallEventType,
+  WallEventPayload,
+  WallPortfolioFilters,
+  WallFiltersByTab,
+  WallCategoryRef,
+  WallPhoto,
+  ComplianceKind,
+  ComplianceSummary,
+  ClientRating,
+  WallJobCard,
+  WallJobDetail,
+  WallPortfolioLayout,
+  WallPortfolioProvider,
+  WallPortfolioCard,
+  WallPortfolioDetail,
+  WallTabPage,
+  WallTabResult,
+  WallSavedTabResult,
+  WallTabParams,
+} from './wall'
 
 // Catálogo de ubicaciones (tarea 19.5, Requisitos 15.4, 15.5, 15.6).
 export { locationsService } from './locations'

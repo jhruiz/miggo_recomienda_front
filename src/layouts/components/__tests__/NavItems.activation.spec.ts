@@ -77,7 +77,7 @@ describe('NavItems.vue - activación de Prestador', () => {
     expect(activate).toHaveBeenCalledTimes(1)
     expect(wrapper.text()).toContain(PROFILE)
     expect(offerEntry(wrapper)).toBeUndefined()
-    expect(router.currentRoute.value.path).toBe('/provider-profile')
+    await vi.waitFor(() => expect(router.currentRoute.value.path).toBe('/provider-profile'))
     wrapper.unmount()
   })
 

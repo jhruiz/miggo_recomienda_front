@@ -81,7 +81,7 @@ describe('NavItems (roles aditivos)', () => {
   it('sin roles solo muestra los enlaces comunes', () => {
     const { text, hasSection } = mountWith([])
 
-    expect(text).toContain('Inicio')
+    expect(text).toContain('Mi panel')
     expect(text).toContain('Mensajes')
     expect(text).not.toContain('Cotizaciones recibidas')
     expect(text).not.toContain('Mis postulaciones')

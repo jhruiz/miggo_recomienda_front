@@ -91,6 +91,9 @@ export const useQuotesStore = defineStore('quotes', () => {
   const requestingDirect = ref(false)
   const requestDirectError = ref<string | null>(null)
 
+  /** Error del servidor para `service_category_id` (422), mostrado junto al selector. */
+  const requestDirectCategoryError = ref<string | null>(null)
+
   // ---- Estado: vista comparativa ----
   const comparative = ref<Quote[]>([])
   const comparativeLoading = ref(false)
@@ -187,6 +190,7 @@ export const useQuotesStore = defineStore('quotes', () => {
   async function requestDirect(payload: RequestDirectQuotePayload) {
     requestingDirect.value = true
     requestDirectError.value = null
+    requestDirectCategoryError.value = null
     try {
       const quote = await quotesService.requestDirect(payload)
 
@@ -195,6 +199,12 @@ export const useQuotesStore = defineStore('quotes', () => {
       return quote
     }
     catch (err) {
+      if (axios.isAxiosError(err)) {
+        const fieldErrors = (err.response?.data as { errors?: Record<string, string[]> } | undefined)?.errors
+
+        requestDirectCategoryError.value = fieldErrors?.service_category_id?.[0] ?? null
+      }
+
       requestDirectError.value = extractErrorMessage(
         err,
         'No se pudo enviar la solicitud de cotización.',
@@ -435,6 +445,7 @@ export const useQuotesStore = defineStore('quotes', () => {
     // estado: solicitud directa
     requestingDirect,
     requestDirectError,
+    requestDirectCategoryError,
 
     // estado: comparativa
     comparative,

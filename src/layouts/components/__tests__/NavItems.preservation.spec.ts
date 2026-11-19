@@ -3,7 +3,8 @@
  *
  * Con el acceso unificado no existe rol activo: el menú depende solo de los
  * roles del usuario.
- *  - Las seis entradas principales se muestran siempre, con su destino.
+ *  - Las entradas principales (Muro, Mi panel, las seis base, Guardados y
+ *    Privacidad del Muro) se muestran siempre, con su destino.
  *  - La sección "Prestador" con "Mi perfil de prestador" aparece si y solo si
  *    el usuario tiene el rol de Prestador (hasProviderRole).
  *
@@ -34,12 +35,15 @@ afterEach(() => {
 })
 
 const BASE_ENTRIES: Array<[string, string]> = [
-  ['Inicio', '/dashboard'],
+  ['Muro', '/wall'],
+  ['Mi panel', '/dashboard'],
   ['Buscar prestadores', '/providers'],
   ['Solicitudes de cotización', '/quote-requests'],
   ['Mis trabajos', '/jobs'],
   ['Mensajes', '/chat'],
   ['Notificaciones', '/notifications'],
+  ['Guardados', '/wall/saved'],
+  ['Privacidad del Muro', '/wall/privacy'],
 ]
 
 async function mountNav(roles: UserRole[]) {

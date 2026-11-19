@@ -43,7 +43,43 @@ function openCreate () {
   createOpen.value = true
 }
 
-async function onCreateSubmit (payload: { name: string, description: string | null }) {
+// Asignación de categoría a Portafolios sin categoría (Req. 2.12).
+const assignOpen = ref(false)
+const assignFieldErrors = ref<Record<string, string>>({})
+const uncategorizedCount = computed(() => store.uncategorizedCount)
+const firstPending = computed(() => store.portfolios.find(p => !p.category) ?? null)
+const assigning = computed(() => firstPending.value !== null && store.savingPortfolioId === firstPending.value.id)
+
+function openAssign () {
+  if (!firstPending.value)
+    return
+
+  assignFieldErrors.value = {}
+  assignOpen.value = true
+}
+
+async function onAssignSubmit (payload: { name: string, description: string | null, service_category_id: number }) {
+  const target = firstPending.value
+
+  if (!target)
+    return
+
+  assignFieldErrors.value = {}
+  try {
+    await store.update(target.id, payload)
+    // Si quedan pendientes se cierra igual; el aviso muestra el conteo vigente.
+    assignOpen.value = false
+    emit('success', 'Portafolio actualizado.')
+  }
+  catch (err) {
+    const apiError = err as ApiError
+
+    assignFieldErrors.value = apiError.fieldErrors ?? {}
+    emit('error', apiError.message)
+  }
+}
+
+async function onCreateSubmit (payload: { name: string, description: string | null, service_category_id: number }) {
   createFieldErrors.value = {}
   try {
     await store.create(payload)
@@ -93,6 +129,27 @@ async function onCreateSubmit (payload: { name: string, description: string | nu
       Alcanzaste el máximo de {{ MAX_PORTFOLIOS }} portafolios.
     </p>
 
+    <VAlert
+      v-if="uncategorizedCount > 0"
+      type="warning"
+      variant="tonal"
+      class="mb-4"
+      data-testid="uncategorized-notice"
+    >
+      Tienes {{ uncategorizedCount }} {{ uncategorizedCount === 1 ? 'portafolio sin categoría' : 'portafolios sin categoría' }}.
+      Asígnales una para que aparezcan en el Muro.
+      <template #append>
+        <VBtn
+          size="small"
+          variant="outlined"
+          data-testid="assign-category-btn"
+          @click="openAssign"
+        >
+          Asignar categoría
+        </VBtn>
+      </template>
+    </VAlert>
+
     <div
       v-if="store.loading && count === 0"
       class="d-flex justify-center py-6"
@@ -131,6 +188,14 @@ async function onCreateSubmit (payload: { name: string, description: string | nu
       :loading="creating"
       :field-errors="createFieldErrors"
       @submit="onCreateSubmit"
+    />
+
+    <PortfolioFormDialog
+      v-model="assignOpen"
+      :portfolio="firstPending"
+      :loading="assigning"
+      :field-errors="assignFieldErrors"
+      @submit="onAssignSubmit"
     />
   </section>
 </template>

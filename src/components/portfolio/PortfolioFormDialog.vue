@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import type { OwnerPortfolio } from '@/services/portfolios'
+import { useServiceCategoriesStore } from '@/stores/serviceCategories'
 
 const NAME_MAX = 100
 const DESCRIPTION_MAX = 1000
@@ -8,7 +9,7 @@ const DESCRIPTION_MAX = 1000
 const props = withDefaults(defineProps<{
   modelValue: boolean
   /** Portafolio a editar; null/undefined para crear uno nuevo. */
-  portfolio?: Pick<OwnerPortfolio, 'name' | 'description'> | null
+  portfolio?: Pick<OwnerPortfolio, 'name' | 'description'> & Partial<Pick<OwnerPortfolio, 'category'>> | null
   loading?: boolean
   /** Errores por campo devueltos por la API (Req. 6.5). */
   fieldErrors?: Record<string, string>
@@ -20,11 +21,14 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
-  (e: 'submit', payload: { name: string, description: string | null }): void
+  (e: 'submit', payload: { name: string, description: string | null, service_category_id: number }): void
 }>()
+
+const categoriesStore = useServiceCategoriesStore()
 
 const name = ref('')
 const description = ref('')
+const categoryId = ref<number | null>(null)
 
 const isEdit = computed(() => !!props.portfolio)
 const title = computed(() => (isEdit.value ? 'Editar portafolio' : 'Nuevo portafolio'))
@@ -36,6 +40,8 @@ watch(
     if (open) {
       name.value = props.portfolio?.name ?? ''
       description.value = props.portfolio?.description ?? ''
+      categoryId.value = props.portfolio?.category?.id ?? null
+      categoriesStore.ensureLoaded()
     }
   },
   { immediate: true },
@@ -59,7 +65,16 @@ const descriptionErrors = computed(() => {
   return errors
 })
 
-const canSubmit = computed(() => name.value.trim() !== '' && !props.loading)
+const categoryErrors = computed(() => {
+  const errors: string[] = []
+
+  if (props.fieldErrors.service_category_id)
+    errors.push(props.fieldErrors.service_category_id)
+
+  return errors
+})
+
+const canSubmit = computed(() => name.value.trim() !== '' && categoryId.value !== null && !props.loading)
 
 function close () {
   if (!props.loading)
@@ -75,6 +90,7 @@ function onSubmit () {
   emit('submit', {
     name: name.value.trim(),
     description: trimmedDescription === '' ? null : trimmedDescription,
+    service_category_id: categoryId.value as number,
   })
 }
 </script>
@@ -109,6 +125,19 @@ function onSubmit () {
             :disabled="loading"
             :rules="[v => !!String(v ?? '').trim() || 'El nombre es obligatorio.']"
             aria-required="true"
+          />
+
+          <VSelect
+            v-model="categoryId"
+            label="Categoría"
+            :items="categoriesStore.idOptions"
+            :loading="categoriesStore.loading"
+            required
+            :error-messages="categoryErrors"
+            :disabled="loading"
+            :rules="[(v: number | null | undefined) => (v !== null && v !== undefined) || 'La categoría es obligatoria.']"
+            aria-required="true"
+            data-testid="portfolio-category-select"
           />
 
           <VTextarea

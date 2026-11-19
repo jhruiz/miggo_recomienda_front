@@ -1,6 +1,6 @@
 ﻿<script setup lang="ts">
 /**
- * Pantalla de inicio de la plataforma (Requisito 14.3).
+ * Pantalla "Mi panel" de la plataforma (Requisito 14.3).
  *
  * Reemplaza el dashboard de analíticas de ejemplo de Materio por un home del
  * dominio: accesos directos a las secciones principales y un pequeño resumen de
@@ -70,10 +70,36 @@ onMounted(async () => {
     jobsInProgress.value = 0
   }
 })
+
+// Trabajos por calificar: carga independiente, sin bloquear el resto ni romper si falla.
+const pendingRatingCount = ref<number>(0)
+const pendingRatingJobIds = ref<number[]>([])
+
+const pendingRatingTarget = computed(() =>
+  pendingRatingCount.value === 1 && pendingRatingJobIds.value.length === 1
+    ? `/jobs/${pendingRatingJobIds.value[0]}#calificar`
+    : '/jobs',
+)
+
+onMounted(() => {
+  jobsService.pendingRating()
+    .then(summary => {
+      pendingRatingCount.value = summary.count
+      pendingRatingJobIds.value = summary.job_ids
+    })
+    .catch(() => {
+      pendingRatingCount.value = 0
+      pendingRatingJobIds.value = []
+    })
+})
 </script>
 
 <template>
   <div>
+    <h4 class="text-h4 mb-4">
+      Mi panel
+    </h4>
+
     <!-- Bienvenida -->
     <VCard class="mb-6">
       <VCardText class="d-flex flex-wrap align-center gap-4">
@@ -122,6 +148,38 @@ onMounted(async () => {
                 {{ jobsInProgress }}
               </div>
               <span class="text-body-2 text-medium-emphasis">Trabajos en progreso</span>
+            </div>
+          </VCardText>
+        </VCard>
+      </VCol>
+
+      <VCol
+        v-if="pendingRatingCount > 0"
+        cols="12"
+        sm="6"
+        md="4"
+        data-test="pending-rating"
+      >
+        <VCard
+          link
+          @click="go(pendingRatingTarget)"
+        >
+          <VCardText class="d-flex align-center gap-4">
+            <VAvatar
+              color="warning"
+              variant="tonal"
+              size="48"
+            >
+              <VIcon icon="ri-star-line" />
+            </VAvatar>
+            <div>
+              <div class="text-h5">
+                {{ pendingRatingCount }}
+              </div>
+              <span class="text-body-2 text-medium-emphasis">Trabajos por calificar</span>
+              <div class="text-body-2 text-primary">
+                Calificar ahora
+              </div>
             </div>
           </VCardText>
         </VCard>

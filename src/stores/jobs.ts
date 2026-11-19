@@ -22,7 +22,7 @@
  */
 import axios from 'axios'
 import { jobsService, profileService } from '@/services'
-import type { Job, JobReasonPayload } from '@/services'
+import type { Job, JobPhoto, JobReasonPayload } from '@/services'
 
 /** Normaliza un error de Axios a un mensaje legible para la UI. */
 function extractErrorMessage(error: unknown, fallback: string): string {
@@ -181,11 +181,35 @@ export const useJobsStore = defineStore('jobs', () => {
   }
 
   /** El Prestador marca el Trabajo como completado (Requisito 7.3). */
-  function complete(id: number) {
+  function complete(id: number, files?: File[]) {
     return runAction(
-      () => jobsService.complete(id),
+      () => jobsService.complete(id, files),
       'No se pudo marcar el trabajo como completado.',
     )
+  }
+
+  /** Sustituye las fotos del detalle actual (si corresponde al Trabajo). */
+  function setCurrentPhotos(id: number, photos: JobPhoto[]) {
+    if (current.value?.id === id)
+      current.value = { ...current.value, photos }
+  }
+
+  /** Agrega fotos en una sola petición; los errores los maneja el componente. */
+  async function addPhotos(id: number, files: File[]) {
+    const photos = await jobsService.addPhotos(id, files)
+
+    setCurrentPhotos(id, photos)
+
+    return photos
+  }
+
+  /** Quita una foto; actualiza el detalle con las restantes. */
+  async function removePhoto(id: number, photoId: number) {
+    const photos = await jobsService.removePhoto(id, photoId)
+
+    setCurrentPhotos(id, photos)
+
+    return photos
   }
 
   /** El Cliente confirma la finalización (Requisito 7.4). */
@@ -238,6 +262,8 @@ export const useJobsStore = defineStore('jobs', () => {
     fetchList,
     fetchById,
     complete,
+    addPhotos,
+    removePhoto,
     confirm,
     rejectCompletion,
     requestCancel,

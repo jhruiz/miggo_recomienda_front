@@ -38,6 +38,29 @@ router.beforeEach(async to => {
   return true
 })
 
+/**
+ * No indexación (Requisito 7.6): las rutas con `meta.noindex` insertan
+ * `<meta name="robots" content="noindex, nofollow">`; el resto lo elimina.
+ */
+router.afterEach(to => {
+  if (typeof document === 'undefined')
+    return
+
+  const existing = document.head.querySelector('meta[name="robots"]')
+
+  if (to.meta.noindex) {
+    const meta = existing ?? document.createElement('meta')
+
+    meta.setAttribute('name', 'robots')
+    meta.setAttribute('content', 'noindex, nofollow')
+    if (!existing)
+      document.head.appendChild(meta)
+  }
+  else {
+    existing?.remove()
+  }
+})
+
 export default function (app: App) {
   app.use(router)
 }

@@ -4,10 +4,11 @@
  *
  * - Destacados: un círculo por portafolio (con su portada) más "Todos".
  *   Al elegir uno se filtra la cuadrícula.
- * - Cuadrícula compacta de 3 columnas con miniaturas cuadradas.
- * - Visor amplio con carrusel para recorrer las fotos (flechas o teclado).
+ * - Cuadrícula (`PortfolioGrid`) y Visor (`PhotoViewer`, sin wrap-around).
  */
 import { computed, ref, watch } from 'vue'
+import PhotoViewer from '@/components/portfolio/PhotoViewer.vue'
+import PortfolioGrid from '@/components/portfolio/PortfolioGrid.vue'
 import type { PublicPortfolio, PublicPortfolioItem } from '@/services/portfolios'
 
 const props = defineProps<{
@@ -15,7 +16,8 @@ const props = defineProps<{
 }>()
 
 interface Photo extends PublicPortfolioItem {
-  portfolioName: string
+  portfolio_name: string
+  category_name: string | null
 }
 
 /** Portafolio seleccionado en los destacados; null = "Todos". */
@@ -29,7 +31,11 @@ const photos = computed<Photo[]>(() => {
   const source = selected.value ? [selected.value] : props.portfolios
 
   return source.flatMap(portfolio =>
-    portfolio.items.map(item => ({ ...item, portfolioName: portfolio.name })),
+    portfolio.items.map(item => ({
+      ...item,
+      portfolio_name: portfolio.name,
+      category_name: portfolio.category?.name ?? null,
+    })),
   )
 })
 
@@ -53,10 +59,6 @@ function coverOf(portfolio: PublicPortfolio): string | null {
   return portfolio.cover_thumb_url ?? first?.thumb_url ?? first?.image_url ?? null
 }
 
-function photoAlt(photo: Photo): string {
-  return photo.description || `Foto del portafolio ${photo.portfolioName}`
-}
-
 function plural(count: number, singular: string, pluralForm: string): string {
   return `${count} ${count === 1 ? singular : pluralForm}`
 }
@@ -64,17 +66,10 @@ function plural(count: number, singular: string, pluralForm: string): string {
 // ---- Visor ----
 const viewerOpen = ref(false)
 const viewerIndex = ref(0)
-const current = computed(() => photos.value[viewerIndex.value] ?? null)
 
 function openViewer(index: number) {
   viewerIndex.value = index
   viewerOpen.value = true
-}
-
-function step(delta: number) {
-  const count = photos.value.length
-  if (count > 0)
-    viewerIndex.value = (viewerIndex.value + delta + count) % count
 }
 </script>
 
@@ -155,6 +150,20 @@ function step(delta: number) {
           </button>
         </div>
 
+        <div
+          v-if="selected?.category"
+          class="mb-2"
+        >
+          <VChip
+            size="small"
+            color="primary"
+            variant="tonal"
+            data-testid="public-portfolio-category"
+          >
+            {{ selected.category.name }}
+          </VChip>
+        </div>
+
         <p
           v-if="selected?.description"
           class="text-body-2 text-medium-emphasis mb-4"
@@ -163,103 +172,20 @@ function step(delta: number) {
         </p>
 
         <!-- Cuadrícula de fotos -->
-        <div class="photo-grid">
-          <button
-            v-for="(photo, index) in photos"
-            :key="photo.id"
-            type="button"
-            class="photo-tile"
-            :aria-label="`Ver foto: ${photoAlt(photo)}`"
-            @click="openViewer(index)"
-          >
-            <VImg
-              :src="photo.thumb_url ?? photo.image_url ?? ''"
-              :alt="photoAlt(photo)"
-              aspect-ratio="1"
-              cover
-              class="photo-img"
-            >
-              <template #error>
-                <div class="d-flex align-center justify-center fill-height bg-surface">
-                  <VIcon
-                    icon="ri-image-line"
-                    size="32"
-                    color="disabled"
-                  />
-                </div>
-              </template>
-            </VImg>
-            <span
-              class="photo-overlay"
-              aria-hidden="true"
-            >
-              <span class="photo-caption">{{ photo.description || photo.portfolioName }}</span>
-            </span>
-          </button>
-        </div>
+        <PortfolioGrid
+          :photos="photos"
+          :eager-count="8"
+          @open="openViewer"
+        />
       </template>
     </VCardText>
 
     <!-- Visor de fotos -->
-    <VDialog
+    <PhotoViewer
       v-model="viewerOpen"
-      max-width="960"
-    >
-      <VCard
-        v-if="current"
-        color="black"
-        theme="dark"
-        class="viewer"
-        @keydown.left.prevent="step(-1)"
-        @keydown.right.prevent="step(1)"
-      >
-        <VBtn
-          icon="ri-close-line"
-          variant="text"
-          class="viewer-close"
-          aria-label="Cerrar visor"
-          @click="viewerOpen = false"
-        />
-
-        <VCarousel
-          v-model="viewerIndex"
-          height="70vh"
-          hide-delimiters
-          :show-arrows="photos.length > 1 ? 'hover' : false"
-        >
-          <VCarouselItem
-            v-for="photo in photos"
-            :key="photo.id"
-          >
-            <VImg
-              :src="photo.image_url ?? photo.thumb_url ?? ''"
-              :alt="photoAlt(photo)"
-              height="100%"
-            />
-          </VCarouselItem>
-        </VCarousel>
-
-        <VCardText class="d-flex align-start gap-4">
-          <div class="flex-grow-1">
-            <div class="text-subtitle-1 font-weight-medium">
-              {{ current.portfolioName }}
-            </div>
-            <p
-              v-if="current.description"
-              class="text-body-2 mb-0"
-            >
-              {{ current.description }}
-            </p>
-          </div>
-          <span
-            class="text-caption text-no-wrap"
-            aria-live="polite"
-          >
-            {{ viewerIndex + 1 }} / {{ photos.length }}
-          </span>
-        </VCardText>
-      </VCard>
-    </VDialog>
+      v-model:index="viewerIndex"
+      :photos="photos"
+    />
   </VCard>
 </template>
 
@@ -319,90 +245,4 @@ function step(delta: number) {
   font-weight: 600;
 }
 
-/* ---- Cuadrícula ---- */
-.photo-grid {
-  display: grid;
-  gap: 4px;
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.photo-tile {
-  position: relative;
-  overflow: hidden;
-  padding: 0;
-  border: 0;
-  aspect-ratio: 1;
-  background: rgba(var(--v-theme-on-surface), 0.04);
-  cursor: zoom-in;
-}
-
-.photo-tile:focus-visible {
-  outline: 2px solid rgb(var(--v-theme-primary));
-  outline-offset: 2px;
-}
-
-.photo-img {
-  block-size: 100%;
-  transition: transform 0.3s ease;
-}
-
-.photo-tile:hover .photo-img {
-  transform: scale(1.05);
-}
-
-.photo-overlay {
-  position: absolute;
-  display: flex;
-  align-items: flex-end;
-  padding: 8px;
-  background: linear-gradient(transparent 45%, rgba(0, 0, 0, 65%));
-  color: #fff;
-  font-size: 0.75rem;
-  inset: 0;
-  opacity: 0;
-  text-align: start;
-  transition: opacity 0.2s ease;
-}
-
-.photo-tile:hover .photo-overlay,
-.photo-tile:focus-visible .photo-overlay {
-  opacity: 1;
-}
-
-.photo-caption {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-/* En pantallas táctiles no hay hover: se oculta la capa. */
-@media (hover: none) {
-  .photo-overlay {
-    display: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .photo-img,
-  .photo-overlay {
-    transition: none;
-  }
-
-  .photo-tile:hover .photo-img {
-    transform: none;
-  }
-}
-
-/* ---- Visor ---- */
-.viewer {
-  position: relative;
-}
-
-.viewer-close {
-  position: absolute;
-  z-index: 2;
-  inset-block-start: 8px;
-  inset-inline-end: 8px;
-}
 </style>

@@ -29,6 +29,10 @@
 import { useJobsStore } from '@/stores/jobs'
 import { useRatingsStore } from '@/stores/ratings'
 import UserAvatar from '@/components/UserAvatar.vue'
+import JobPhotosManager from '@/components/jobs/JobPhotosManager.vue'
+import { useNotifier } from '@/composables/useNotifier'
+
+const { state: notifier, notifySuccess, notifyError } = useNotifier()
 
 const route = useRoute()
 const store = useJobsStore()
@@ -179,8 +183,47 @@ function dateText(value: string | null | undefined): string {
 }
 
 // ---- Acciones directas (sin motivo) ----
+// Diálogo de cierre con fotos opcionales (0 a 5) en la misma operación.
+const completeDialog = ref(false)
+const completeFiles = ref<File[]>([])
+const completeError = ref<string | null>(null)
+const completePhotos = ref<InstanceType<typeof JobPhotosManager> | null>(null)
+
+/** El administrador de fotos es solo del Prestador con el Trabajo cerrado o completado. */
+const canManagePhotos = computed(
+  () => isProvider.value && (isAwaitingConfirmation.value || isCompleted.value),
+)
+
+function openCompleteDialog() {
+  completeFiles.value = []
+  completeError.value = null
+  completeDialog.value = true
+}
+
+function closeCompleteDialog() {
+  if (actionLoading.value)
+    return
+
+  completeDialog.value = false
+  completeFiles.value = []
+  completeError.value = null
+}
+
 async function completeJob() {
-  await store.complete(jobId.value).catch(() => {})
+  completeError.value = null
+
+  try {
+    await store.complete(jobId.value, completeFiles.value)
+    completePhotos.value?.clear()
+    completeDialog.value = false
+    completeFiles.value = []
+    notifySuccess('Trabajo marcado como terminado.')
+  }
+  catch {
+    // Se conserva la lista de pendientes para reintentar.
+    completeError.value = store.actionError
+    notifyError(store.actionError ?? 'No se pudo marcar el trabajo como completado.')
+  }
 }
 
 async function confirmJob() {
@@ -306,8 +349,29 @@ async function submitRating() {
 
 /** Carga las calificaciones del Trabajo cuando éste ya está completado. */
 function maybeLoadRatings() {
-  if (canRate.value)
-    ratingsStore.fetchForJob(jobId.value).catch(() => {})
+  if (canRate.value) {
+    ratingsStore
+      .fetchForJob(jobId.value)
+      .catch(() => {})
+      .then(() => scrollToRatingBlock())
+  }
+}
+
+/** Con el hash `#calificar`, lleva suavemente al bloque de calificación (una sola vez). */
+let ratingScrollDone = false
+
+function scrollToRatingBlock() {
+  if (ratingScrollDone || route.hash !== '#calificar')
+    return
+
+  nextTick(() => {
+    const el = document.getElementById('calificar')
+
+    if (el) {
+      ratingScrollDone = true
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  })
 }
 
 watch(canRate, enabled => {
@@ -486,9 +550,25 @@ onMounted(() => {
             </VCardText>
           </VCard>
 
+          <!-- Fotos del Trabajo (solo Prestador, Trabajo cerrado o completado) -->
+          <VCard
+            v-if="canManagePhotos"
+            class="mt-6"
+          >
+            <VCardText>
+              <JobPhotosManager
+                :job-id="current.id"
+                :photos="current.photos ?? []"
+                @success="notifySuccess"
+                @error="notifyError"
+              />
+            </VCardText>
+          </VCard>
+
           <!-- Calificaciones (Requisitos 8.2, 8.5) -->
           <VCard
             v-if="canRate"
+            id="calificar"
             class="mt-6"
           >
             <VCardItem>
@@ -666,9 +746,9 @@ onMounted(() => {
                 prepend-icon="ri-check-double-line"
                 :loading="actionLoading"
                 block
-                @click="completeJob"
+                @click="openCompleteDialog"
               >
-                Marcar completado
+                Marcar como terminado
               </VBtn>
 
               <!-- Cliente: confirmar finalización -->
@@ -732,6 +812,67 @@ onMounted(() => {
         </VCol>
       </VRow>
     </template>
+
+    <!-- Diálogo de cierre: fotos opcionales en la misma operación -->
+    <VDialog
+      v-model="completeDialog"
+      max-width="640"
+      persistent
+    >
+      <VCard>
+        <VCardItem>
+          <VCardTitle>Marcar como terminado</VCardTitle>
+        </VCardItem>
+        <VCardText>
+          <JobPhotosManager
+            v-if="current"
+            ref="completePhotos"
+            :job-id="current.id"
+            select-only
+            :disabled="actionLoading"
+            @update:files="completeFiles = $event"
+          />
+          <VAlert
+            v-if="completeError"
+            type="error"
+            variant="tonal"
+            density="compact"
+            class="mt-3"
+          >
+            {{ completeError }}
+          </VAlert>
+        </VCardText>
+        <VCardActions class="px-6 pb-4">
+          <VSpacer />
+          <VBtn
+            variant="tonal"
+            color="secondary"
+            :disabled="actionLoading"
+            @click="closeCompleteDialog"
+          >
+            Cancelar
+          </VBtn>
+          <VBtn
+            color="success"
+            prepend-icon="ri-check-double-line"
+            :loading="actionLoading"
+            data-testid="confirm-complete"
+            @click="completeJob"
+          >
+            Marcar como terminado
+          </VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
+
+    <VSnackbar
+      v-model="notifier.visible"
+      :color="notifier.color"
+      location="top end"
+      :timeout="4000"
+    >
+      {{ notifier.text }}
+    </VSnackbar>
 
     <!-- Diálogo de motivo (rechazo de finalización / cancelación) -->
     <VDialog

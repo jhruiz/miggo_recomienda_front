@@ -19,6 +19,7 @@ import UserAvatar from '@/components/UserAvatar.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useProvidersStore } from '@/stores/providers'
 import { useQuotesStore } from '@/stores/quotes'
+import { useServiceCategoriesStore } from '@/stores/serviceCategories'
 
 const route = useRoute()
 const router = useRouter()
@@ -27,7 +28,8 @@ const auth = useAuthStore()
 const quotesStore = useQuotesStore()
 
 const { profile, profileLoading, profileError } = storeToRefs(providersStore)
-const { requestingDirect, requestDirectError, currentUserId } = storeToRefs(quotesStore)
+const categoriesStore = useServiceCategoriesStore()
+const { requestingDirect, requestDirectError, requestDirectCategoryError, currentUserId } = storeToRefs(quotesStore)
 
 const providerId = computed(() => Number(route.params.id))
 
@@ -54,20 +56,49 @@ const canRequestQuote = computed(
 
 const messageTooLong = computed(() => requestMessage.value.length > MAX_MESSAGE)
 
+/** Categoría obligatoria de la Cotización directa (Requisito 18.8). */
+const requestCategoryId = ref<number | null>(null)
+
+/**
+ * Opciones del selector: las categorías del Prestador si el perfil las expone;
+ * si no, cualquiera del catálogo.
+ */
+const categoryOptions = computed(() => {
+  const own = profile.value?.categories ?? []
+  if (own.length)
+    return own.map(c => ({ title: c.name, value: c.id }))
+
+  return categoriesStore.idOptions
+})
+
+const categoryErrors = computed(() =>
+  requestDirectCategoryError.value ? [requestDirectCategoryError.value] : [],
+)
+
+const canSubmitRequest = computed(
+  () => requestCategoryId.value != null && !messageTooLong.value,
+)
+
 function openRequestDialog() {
   requestMessage.value = ''
   requestSuccess.value = false
   requestDirectError.value = null
+  requestDirectCategoryError.value = null
+  categoriesStore.ensureLoaded()
+
+  const options = categoryOptions.value
+  requestCategoryId.value = options.length === 1 ? options[0].value : null
   requestDialog.value = true
 }
 
 async function submitRequest() {
-  if (!profile.value || messageTooLong.value)
+  if (!profile.value || !canSubmitRequest.value || requestCategoryId.value == null)
     return
 
   try {
     await quotesStore.requestDirect({
       provider_user_id: profile.value.user_id,
+      service_category_id: requestCategoryId.value,
       message: requestMessage.value.trim() || null,
     })
 
@@ -376,7 +407,7 @@ watch(providerId, load)
 
         <VCardText>
           <VAlert
-            v-if="requestDirectError"
+            v-if="requestDirectError && !requestDirectCategoryError"
             type="error"
             variant="tonal"
             border="start"
@@ -389,6 +420,18 @@ watch(providerId, load)
             Cuéntale al prestador qué necesitas. El mensaje es opcional; el
             prestador responderá con una cotización detallada.
           </p>
+
+          <VSelect
+            v-model="requestCategoryId"
+            class="mb-4"
+            label="Categoría del servicio *"
+            placeholder="Selecciona una categoría"
+            :items="categoryOptions"
+            :loading="categoriesStore.loading"
+            :error-messages="categoryErrors"
+            append-inner-icon="ri-arrow-down-s-line"
+            @update:model-value="requestDirectCategoryError = null"
+          />
 
           <VTextarea
             v-model="requestMessage"
@@ -415,7 +458,7 @@ watch(providerId, load)
             color="primary"
             prepend-icon="ri-send-plane-line"
             :loading="requestingDirect"
-            :disabled="messageTooLong"
+            :disabled="!canSubmitRequest"
             @click="submitRequest"
           >
             Enviar solicitud

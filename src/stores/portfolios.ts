@@ -113,6 +113,7 @@ export const usePortfoliosStore = defineStore('portfolios', () => {
         ...p,
         name: updated.name,
         description: updated.description,
+        category: updated.category ?? null,
       }))
 
       return portfolios.value.find(p => p.id === id) ?? updated
@@ -203,8 +204,12 @@ export const usePortfoliosStore = defineStore('portfolios', () => {
     }
   }
 
+  /** Portafolios sin categoría; se actualiza al asignar una (Req. 2.12). */
+  const uncategorizedCount = computed(() => portfolios.value.filter(p => !p.category).length)
+
   return {
     portfolios,
+    uncategorizedCount,
     loading,
     limits,
     savingPortfolioId,

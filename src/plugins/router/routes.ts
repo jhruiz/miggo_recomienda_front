@@ -1,9 +1,37 @@
 export const routes = [
-  { path: '/', redirect: '/dashboard' },
+  { path: '/', redirect: '/wall' },
   {
     path: '/',
     component: () => import('@/layouts/default.vue'),
     children: [
+      {
+        // Muro de portafolios (Requisitos 7.1, 7.6). No indexable.
+        path: 'wall',
+        component: () => import('@/pages/wall/index.vue'),
+        meta: { noindex: true },
+      },
+      {
+        path: 'wall/saved',
+        component: () => import('@/pages/wall/saved.vue'),
+        meta: { noindex: true },
+      },
+      {
+        path: 'wall/privacy',
+        component: () => import('@/pages/wall/privacy.vue'),
+        meta: { noindex: true },
+      },
+      {
+        // Detalle de un Trabajo del Muro. Restringida a dígitos. No indexable.
+        path: 'wall/jobs/:id(\\d+)',
+        component: () => import('@/pages/wall/jobs/[id].vue'),
+        meta: { noindex: true },
+      },
+      {
+        // Detalle de un Portafolio del Muro. Restringida a dígitos. No indexable.
+        path: 'wall/portfolios/:id(\\d+)',
+        component: () => import('@/pages/wall/portfolios/[id].vue'),
+        meta: { noindex: true },
+      },
       {
         path: 'dashboard',
         component: () => import('@/pages/dashboard.vue'),

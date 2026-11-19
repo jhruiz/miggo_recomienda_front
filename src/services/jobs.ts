@@ -31,8 +31,21 @@ export type JobStatus = 'en_progreso' | 'completado' | 'cancelado' | string
  * `actual_completion_date` no nulo (el Prestador ya marcó completado y el
  * Cliente aún no confirma ni rechaza).
  */
+export interface JobPhoto {
+  id: number
+  original_url: string
+  thumb_url: string | null
+  medium_url: string | null
+  conversions_ready: boolean
+  created_at: string | null
+}
+
 export interface Job {
   id: number
+  /** Momento de cierre por el Prestador (nulo mientras no ha cerrado). */
+  completed_at?: string | null
+  /** Fotos del Trabajo; el backend solo las expone al Prestador. */
+  photos?: JobPhoto[]
   quote_id: number | null
   client_user_id: number
   client_name: string | null
@@ -57,7 +70,23 @@ export interface JobReasonPayload {
   reason: string
 }
 
+/** Trabajos completados que el usuario aún no ha calificado. */
+export interface PendingRatingSummary {
+  count: number
+  job_ids: number[]
+}
+
 export const jobsService = {
+  /** `GET /jobs/pending-rating` — responde `{ data: { count, job_ids } }`. */
+  pendingRating(): Promise<PendingRatingSummary> {
+    return http
+      .get<ApiEnvelope<PendingRatingSummary>>('/jobs/pending-rating')
+      .then(res => ({
+        count: res.data.data.count ?? 0,
+        job_ids: res.data.data.job_ids ?? [],
+      }))
+  },
+
   /**
    * Lista los Trabajos del usuario autenticado, ya sea como Cliente o como
    * Prestador. Responde `{ data: { jobs } }`.
@@ -83,10 +112,47 @@ export const jobsService = {
    * fecha real de finalización y queda a la espera de la confirmación del
    * Cliente (sigue en "en progreso"). Responde `{ data: { job } }`.
    */
-  complete(id: number): Promise<Job> {
+  complete(id: number, files?: File[]): Promise<Job> {
+    if (files && files.length > 0) {
+      const formData = new FormData()
+
+      for (const file of files)
+        formData.append('photos[]', file)
+
+      return http
+        .post<ApiEnvelope<{ job: Job }>>(`/jobs/${id}/complete`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+        .then(res => res.data.data.job)
+    }
+
     return http
       .post<ApiEnvelope<{ job: Job }>>(`/jobs/${id}/complete`)
       .then(res => res.data.data.job)
+  },
+
+  /**
+   * Agrega de 1 a 5 fotos al Trabajo en UNA sola petición multipart
+   * (`photos[]`). Responde 201 con `{ data: { photos } }` (todas las fotos).
+   */
+  addPhotos(id: number, files: File[]): Promise<JobPhoto[]> {
+    const formData = new FormData()
+
+    for (const file of files)
+      formData.append('photos[]', file)
+
+    return http
+      .post<ApiEnvelope<{ photos: JobPhoto[] }>>(`/jobs/${id}/photos`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(res => res.data.data.photos ?? [])
+  },
+
+  /** Quita una foto del Trabajo. Responde `{ data: { photos } }` con las restantes. */
+  removePhoto(id: number, photoId: number): Promise<JobPhoto[]> {
+    return http
+      .delete<ApiEnvelope<{ photos: JobPhoto[] }>>(`/jobs/${id}/photos/${photoId}`)
+      .then(res => res.data.data.photos ?? [])
   },
 
   /**

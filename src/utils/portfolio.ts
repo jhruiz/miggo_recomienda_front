@@ -21,7 +21,7 @@ export function validateImageFile (file: Pick<File, 'type' | 'size'> | null): st
 export interface UploadStateInput {
   hasPortfolios: boolean
   portfolio: { photos_count: number } | null
-  file: Pick<File, 'type' | 'size'> | null
+  files: Array<Pick<File, 'type' | 'size'>>
   uploading: boolean
 }
 
@@ -41,12 +41,20 @@ export function getUploadState (input: UploadStateInput): UploadState {
       reason: `Este portafolio alcanzó el máximo de ${MAX_PHOTOS_PER_PORTFOLIO} fotos.`,
     }
   }
-  if (!input.file) {
+  if (input.files.length === 0) {
     return { canUpload: false, reason: 'Selecciona una imagen.' }
   }
-  const invalid = validateImageFile(input.file)
-  if (invalid) {
-    return { canUpload: false, reason: invalid }
+  if (input.portfolio.photos_count + input.files.length > MAX_PHOTOS_PER_PORTFOLIO) {
+    return {
+      canUpload: false,
+      reason: `Este portafolio admite como máximo ${MAX_PHOTOS_PER_PORTFOLIO} fotos.`,
+    }
+  }
+  for (const file of input.files) {
+    const invalid = validateImageFile(file)
+    if (invalid) {
+      return { canUpload: false, reason: invalid }
+    }
   }
   if (input.uploading) {
     return { canUpload: false, reason: 'Subida en curso.' }

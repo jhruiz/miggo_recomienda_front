@@ -2,6 +2,7 @@
 import { useTheme } from 'vuetify'
 import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
 import { useAuthStore } from '@/stores/auth'
+import { resolvePostLoginTarget } from '@/utils/wall'
 
 import logo from '@images/logo.svg?raw'
 import authV1MaskDark from '@images/pages/auth-v1-mask-dark.png'
@@ -26,6 +27,7 @@ const authThemeMask = computed(() => {
 const isPasswordVisible = ref(false)
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
 // `error` y `loading` del store se exponen reactivos en la UI.
@@ -39,8 +41,9 @@ async function handleLogin() {
       password: form.value.password,
     })
 
-    // Login exitoso: el token ya quedó persistido; redirigimos al dashboard.
-    await router.push('/dashboard')
+    // Login exitoso: el token ya quedó persistido; redirigimos al destino
+    // original (?redirect=) si es seguro, o al Muro.
+    await router.push(resolvePostLoginTarget(route.query.redirect))
   }
   catch {
     // El mensaje legible ya está en `authStore.error` y se muestra en la UI.

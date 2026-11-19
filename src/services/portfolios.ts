@@ -20,7 +20,15 @@ export interface OwnerPortfolioItem {
   description: string | null
   image_url: string | null
   thumb_url: string | null
+  medium_url: string | null
   created_at: string
+}
+
+/** Categoría de servicio de un Portafolio (`null` si no tiene). */
+export interface PortfolioCategory {
+  id: number
+  name: string
+  slug: string
 }
 
 /** Portafolio tal como lo ve su dueño (incluye los vacíos). */
@@ -28,6 +36,7 @@ export interface OwnerPortfolio {
   id: number
   name: string
   description: string | null
+  category: PortfolioCategory | null
   photos_count: number
   cover_thumb_url: string | null
   created_at: string
@@ -40,6 +49,7 @@ export interface PublicPortfolioItem {
   description: string | null
   image_url: string | null
   thumb_url: string | null
+  medium_url: string | null
 }
 
 /** Portafolio en el perfil público (`GET /providers/{id}` → `portfolios`). */
@@ -47,6 +57,7 @@ export interface PublicPortfolio {
   id: number
   name: string
   description: string | null
+  category: PortfolioCategory | null
   cover_thumb_url: string | null
   items: PublicPortfolioItem[]
 }
@@ -58,19 +69,27 @@ export interface PortfolioLimits {
   max_photos_per_portfolio: number
 }
 
+/** `meta` del listado: límites más Portafolios sin Categoría_Portafolio. */
+export interface PortfolioListMeta extends PortfolioLimits {
+  uncategorized_count: number
+}
+
 export interface PortfolioListResult {
   portfolios: OwnerPortfolio[]
-  meta: PortfolioLimits
+  meta: PortfolioListMeta
 }
 
 export interface CreatePortfolioPayload {
   name: string
   description?: string | null
+  /** Obligatoria al crear (Req. 2.9). */
+  service_category_id: number
 }
 
 export interface UpdatePortfolioPayload {
   name?: string
   description?: string | null
+  service_category_id?: number
 }
 
 const BASE = '/profile/provider/portfolios'
@@ -82,7 +101,7 @@ export const portfoliosService = {
       .get<ApiEnvelope<{ portfolios: OwnerPortfolio[] }>>(BASE)
       .then(res => ({
         portfolios: res.data.data.portfolios ?? [],
-        meta: res.data.meta as unknown as PortfolioLimits,
+        meta: res.data.meta as unknown as PortfolioListMeta,
       }))
   },
 
@@ -93,7 +112,7 @@ export const portfoliosService = {
       .then(res => res.data.data.portfolio)
   },
 
-  /** Actualiza nombre y/o descripción de un Portafolio. */
+  /** Actualiza nombre, descripción y/o categoría de un Portafolio. */
   update(id: number, payload: UpdatePortfolioPayload): Promise<OwnerPortfolio> {
     return http
       .put<ApiEnvelope<{ portfolio: OwnerPortfolio }>>(`${BASE}/${id}`, payload)

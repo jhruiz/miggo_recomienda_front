@@ -46,7 +46,7 @@ export const echo = new Echo<'reverb'>({
   wsHost: import.meta.env.VITE_REVERB_HOST,
   wsPort: Number(import.meta.env.VITE_REVERB_PORT),
   wssPort: Number(import.meta.env.VITE_REVERB_PORT),
-  forceTLS: false,
+  forceTLS: import.meta.env.VITE_REVERB_SCHEME === 'https',
   enabledTransports: ['ws', 'wss'],
   authorizer: (channel: { name: string }) => ({
     authorize: (socketId: string, callback: (error: Error | null, data: any) => void) => {

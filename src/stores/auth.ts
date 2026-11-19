@@ -47,9 +47,6 @@ function extractErrorMessage(error: unknown, fallback: string): string {
     // El backend ya envía mensajes adecuados para 401 (genérico) y 429 (bloqueo).
     if (data?.message)
       return data.message
-
-    if (error.message)
-      return error.message
   }
 
   return fallback

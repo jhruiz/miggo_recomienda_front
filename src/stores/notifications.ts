@@ -43,9 +43,6 @@ function extractErrorMessage(error: unknown, fallback: string): string {
 
     if (data?.message)
       return data.message
-
-    if (error.message)
-      return error.message
   }
 
   return fallback

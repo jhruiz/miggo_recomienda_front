@@ -9,6 +9,13 @@ const props = defineProps<{
 const { name: themeName, global: globalTheme } = useTheme()
 const { state: currentThemeName, next: getNextThemeName, index: currentThemeIndex } = useCycleList(props.themes.map(t => t.name), { initialValue: themeName })
 
+// Nombre visible del tema en el tooltip
+const themeLabels: Record<string, string> = {
+  light: 'Claro',
+  dark: 'Oscuro',
+  system: 'Sistema',
+}
+
 const changeTheme = () => {
   globalTheme.name.value = getNextThemeName()
 }
@@ -27,7 +34,7 @@ watch(() => globalTheme.name.value, val => {
       open-delay="1000"
       scroll-strategy="close"
     >
-      <span class="text-capitalize">{{ currentThemeName }}</span>
+      <span class="text-capitalize">{{ themeLabels[currentThemeName] ?? currentThemeName }}</span>
     </VTooltip>
   </IconBtn>
 </template>

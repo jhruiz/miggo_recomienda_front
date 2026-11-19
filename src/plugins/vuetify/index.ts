@@ -1,6 +1,7 @@
 import type { App } from 'vue'
 
 import { createVuetify } from 'vuetify'
+import { es } from 'vuetify/locale'
 import { VBtn } from 'vuetify/components/VBtn'
 import defaults from './defaults'
 import { icons } from './icons'
@@ -18,6 +19,11 @@ export default function (app: App) {
     },
     defaults,
     icons,
+    locale: {
+      locale: 'es',
+      fallback: 'en',
+      messages: { es },
+    },
     theme: {
       defaultTheme: 'light',
       themes,

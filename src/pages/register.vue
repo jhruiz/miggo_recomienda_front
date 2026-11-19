@@ -86,10 +86,10 @@ async function handleRegister() {
 
       <VCardText class="pt-2">
         <h4 class="text-h4 mb-1">
-          Adventure starts here 🚀
+          La aventura comienza aquí 🚀
         </h4>
         <p class="mb-0">
-          Make your app management easy and fun!
+          ¡Haz que la gestión de tu aplicación sea fácil y divertida!
         </p>
       </VCardText>
 
@@ -128,16 +128,16 @@ async function handleRegister() {
             <VCol cols="12">
               <VTextField
                 v-model="form.name"
-                label="Full name"
-                placeholder="John Doe"
+                label="Nombre completo"
+                placeholder="Juan Pérez"
               />
             </VCol>
             <!-- email -->
             <VCol cols="12">
               <VTextField
                 v-model="form.email"
-                label="Email"
-                placeholder="johndoe@email.com"
+                label="Correo electrónico"
+                placeholder="juanperez@correo.com"
                 type="email"
               />
             </VCol>
@@ -146,7 +146,7 @@ async function handleRegister() {
             <VCol cols="12">
               <VTextField
                 v-model="form.password"
-                label="Password"
+                label="Contraseña"
                 placeholder="············"
                 :type="isPasswordVisible ? 'text' : 'password'"
                 autocomplete="password"
@@ -159,7 +159,7 @@ async function handleRegister() {
             <VCol cols="12">
               <VTextField
                 v-model="form.password_confirmation"
-                label="Confirm password"
+                label="Confirmar contraseña"
                 placeholder="············"
                 :type="isPasswordVisible ? 'text' : 'password'"
                 autocomplete="password"
@@ -174,11 +174,11 @@ async function handleRegister() {
                   for="privacy-policy"
                   style="opacity: 1;"
                 >
-                  <span class="me-1">I agree to</span>
+                  <span class="me-1">Acepto la</span>
                   <a
                     href="javascript:void(0)"
                     class="text-primary"
-                  >privacy policy & terms</a>
+                  >política de privacidad y los términos</a>
                 </VLabel>
               </div>
 
@@ -188,7 +188,7 @@ async function handleRegister() {
                 :loading="loading"
                 :disabled="loading"
               >
-                Sign up
+                Crear cuenta
               </VBtn>
             </VCol>
 
@@ -197,12 +197,12 @@ async function handleRegister() {
               cols="12"
               class="text-center text-base"
             >
-              <span>Already have an account?</span>
+              <span>¿Ya tienes una cuenta?</span>
               <RouterLink
                 class="text-primary ms-2"
                 to="login"
               >
-                Sign in instead
+                Inicia sesión
               </RouterLink>
             </VCol>
 
@@ -211,7 +211,7 @@ async function handleRegister() {
               class="d-flex align-center"
             >
               <VDivider />
-              <span class="mx-4">or</span>
+              <span class="mx-4">o</span>
               <VDivider />
             </VCol>
 

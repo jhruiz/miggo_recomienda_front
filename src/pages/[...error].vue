@@ -18,15 +18,15 @@ const authThemeMask = computed(() => {
   <div class="misc-wrapper">
     <ErrorHeader
       status-code="404"
-      title="Page Not Found ⚠️"
-      description="We couldn't find the page you are looking for."
+      title="Página no encontrada ⚠️"
+      description="No pudimos encontrar la página que buscas."
     />
 
     <!-- 👉 Image -->
     <div class="misc-avatar w-100 text-center">
       <VImg
         :src="misc404"
-        alt="Coming Soon"
+        alt="Página no encontrada"
         :max-width="800"
         class="mx-auto"
       />
@@ -34,7 +34,7 @@ const authThemeMask = computed(() => {
         to="/"
         class="mt-10"
       >
-        Back to Home
+        Volver al inicio
       </VBtn>
     </div>
 

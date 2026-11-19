@@ -4,7 +4,7 @@
     <span class="d-flex align-center">
       &copy;
       {{ new Date().getFullYear() }}
-      Miggo
+      Miggo Solutions S.A.S.
     </span>
   </div>
 </template>

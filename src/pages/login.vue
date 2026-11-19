@@ -79,10 +79,10 @@ async function handleLogin() {
 
       <VCardText class="pt-2">
         <h4 class="text-h4 mb-1">
-          Welcome to Miggo! 👋🏻
+          ¡Bienvenido a Miggo! 👋🏻
         </h4>
         <p class="mb-0">
-          Please sign-in to your account and start the adventure
+          Inicia sesión en tu cuenta y comienza la aventura
         </p>
       </VCardText>
 
@@ -107,7 +107,7 @@ async function handleLogin() {
             <VCol cols="12">
               <VTextField
                 v-model="form.email"
-                label="Email"
+                label="Correo electrónico"
                 type="email"
               />
             </VCol>
@@ -116,7 +116,7 @@ async function handleLogin() {
             <VCol cols="12">
               <VTextField
                 v-model="form.password"
-                label="Password"
+                label="Contraseña"
                 placeholder="············"
                 :type="isPasswordVisible ? 'text' : 'password'"
                 autocomplete="password"
@@ -128,14 +128,14 @@ async function handleLogin() {
               <div class="d-flex align-center justify-space-between flex-wrap my-6">
                 <VCheckbox
                   v-model="form.remember"
-                  label="Remember me"
+                  label="Recordarme"
                 />
 
                 <a
                   class="text-primary"
                   href="javascript:void(0)"
                 >
-                  Forgot Password?
+                  ¿Olvidaste tu contraseña?
                 </a>
               </div>
 
@@ -146,7 +146,7 @@ async function handleLogin() {
                 :loading="loading"
                 :disabled="loading"
               >
-                Login
+                Iniciar sesión
               </VBtn>
             </VCol>
 
@@ -155,12 +155,12 @@ async function handleLogin() {
               cols="12"
               class="text-center text-base"
             >
-              <span>New on our platform?</span>
+              <span>¿Eres nuevo en la plataforma?</span>
               <RouterLink
                 class="text-primary ms-2"
                 to="/register"
               >
-                Create an account
+                Crea una cuenta
               </RouterLink>
             </VCol>
 
@@ -169,7 +169,7 @@ async function handleLogin() {
               class="d-flex align-center"
             >
               <VDivider />
-              <span class="mx-4">or</span>
+              <span class="mx-4">o</span>
               <VDivider />
             </VCol>
 

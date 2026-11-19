@@ -1,4 +1,4 @@
-﻿<script lang="ts" setup>
+<script lang="ts" setup>
 import NavItems from '@/layouts/components/NavItems.vue'
 import logo from '@images/logo-miggo-blanco.png'
 import VerticalNavLayout from '@layouts/components/VerticalNavLayout.vue'
